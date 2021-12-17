@@ -6,6 +6,9 @@ class QuestionLogic {
   final List<Question> _questions = [
     Question('У кота 4 лапы', true),
     Question('У кота 5 лап', false),
+    Question('У кота 6 лап', false),
+    Question('У кота больше одной лапы', true),
+    Question('У кота 7 лап', false),
   ];
 
   getQuestion() {
@@ -17,9 +20,8 @@ class QuestionLogic {
   }
 
   nextQuestion() {
-    if (_questionNumber < _questions.length) {
+    if (_questionNumber < _questions.length - 1) {
       _questionNumber++;
     }
-    ;
   }
 }
