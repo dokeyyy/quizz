@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quizz_project/question_logic.dart';
+import 'package:quizz_project/resultPage.dart';
 
 void main() {
   runApp(const TestingApp());
@@ -13,7 +14,7 @@ class TestingApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.amberAccent,
         body: SafeArea(
           child: TestingPage(),
         ),
@@ -32,6 +33,7 @@ class TestingPage extends StatefulWidget {
 class _TestingPageState extends State<TestingPage> {
   QuestionLogic questionLogic = QuestionLogic();
   List<Icon> score = [];
+  int correctAnswersCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +62,10 @@ class _TestingPageState extends State<TestingPage> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(150),
+                  color: Color(0xFF00D734),
                 ),
-                child: Center(child: Text('Истина')),
+                child: Center(child: Text('!Yeap!')),
               ),
             ),
           ),
@@ -77,16 +79,17 @@ class _TestingPageState extends State<TestingPage> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(150),
+                  color: Color(0xFCFF0000),
                 ),
-                child: Center(child: Text('Ложь')),
+                child: Center(child: Text('!Nope!')),
               ),
             ),
           ),
         ),
-        Row(
-          children: score,
+        Hero(
+          tag: 'scoreTag',
+          child: scoreRow(questionLogic.getAnswerList(), 45.0, false),
         )
       ],
     );
@@ -96,23 +99,80 @@ class _TestingPageState extends State<TestingPage> {
     bool correctAnswer = questionLogic.getAnswer();
 
     setState(() {
-      questionLogic.nextQuestion();
-
       if (userAnswer == correctAnswer) {
-        score.add(
-          Icon(
-            Icons.check,
-            color: Colors.green,
-          ),
-        );
+        correctAnswersCount++;
+        questionLogic.addAnswer(true);
       } else {
-        score.add(
-          Icon(
-            Icons.close,
-            color: Colors.red,
+        questionLogic.addAnswer(false);
+      }
+      if (questionLogic.isFinished()) {
+        String correctAnswerPercent =
+            (correctAnswersCount * 100 / questionLogic.getAllCount())
+                .toStringAsFixed(0);
+
+        // questionLogic.reset();
+        // score = [];
+        // correctAnswersCount = 0;
+
+        onGoBack(dynamic value) {
+          setState(() {
+            questionLogic.reset();
+            score = [];
+            correctAnswersCount = 0;
+          });
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => resultPage(
+              correctAnswerPercent: correctAnswerPercent,
+              score: score,
+              questionLogic: questionLogic,
+            ),
           ),
-        );
+        ).then(onGoBack);
+
+        // showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       return AlertDialog(
+        //         title: Text('Конец теста'),
+        //         content: Text('Тест завершён на $correctAnswerPercent%'),
+        //       );
+        //     });
+      } else {
+        questionLogic.nextQuestion();
       }
     });
   }
+}
+
+Widget scoreRow(List<bool> answerList, double size, bool centered) {
+  List<Icon> score = [];
+  for (bool answer in answerList) {
+    if (answer) {
+      score.add(
+        Icon(
+          Icons.check,
+          color: Color(0xFF0DFF3A),
+          size: size,
+        ),
+      );
+    } else {
+      score.add(
+        Icon(
+          Icons.close,
+          color: Color(0xFFFF3838),
+          size: size,
+        ),
+      );
+    }
+  }
+
+  return Row(
+    mainAxisAlignment:
+        centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+    children: score,
+  );
 }
