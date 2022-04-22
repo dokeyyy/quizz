@@ -88,23 +88,15 @@ class _resultPageState extends State<resultPage> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 scoreRow(widget.questionLogic.getAnswerList(), 45.0, true),
-                AnimatedTextKit(animatedTexts: [
-                  ColorizeAnimatedText(
-                      "Тест завершён на ${widget.correctAnswerPercent}%",
-                      textStyle: TextStyle(
-                          fontSize: 25.0, fontWeight: FontWeight.bold),
-                      colors: [
-                        Colors.purple,
-                        Colors.blue,
-                        Colors.yellow,
-                        Colors.red
-                      ])
-                ]),
+                Text(
+                  "Тест завершён на ${widget.correctAnswerPercent}%",
+                  style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+                ),
                 TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('Ещё раз'))
+                    child: Text('Ещё раз')),
               ],
             ),
           ),
